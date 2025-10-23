@@ -12,7 +12,7 @@ const getChartsPage = async (req, res, next) => { //추가기능(2)
                 b.bookname AS title,
                 b.author,
                 GROUP_CONCAT(DISTINCT c.categoryName ORDER BY c.categoryName SEPARATOR ', ') AS categories,
-                COUNT(br.bookID) AS borrow_count
+                COUNT(DISTINCT br.username, br.borrowDate) AS borrow_count
             FROM borrow AS br
             JOIN books AS b ON br.bookID = b.bookID
             LEFT JOIN book_categories AS bc ON b.bookID = bc.bookID
@@ -37,17 +37,24 @@ const getChartsPage = async (req, res, next) => { //추가기능(2)
                 SELECT
                     b.bookname AS title,
                     b.author,
-                    GROUP_CONCAT(DISTINCT c.categoryName ORDER BY c.categoryName SEPARATOR ', ') AS categories,
-                    COUNT(br.bookID) AS borrow_count
+                    (SELECT COALESCE(GROUP_CONCAT(DISTINCT c_all.categoryName ORDER BY c_all.categoryName SEPARATOR ', '), 'N/A')
+                     FROM book_categories bc_all
+                     JOIN categories c_all ON bc_all.categoryID = c_all.categoryID
+                     WHERE bc_all.bookID = b.bookID) AS categories,
+                    COUNT(DISTINCT br.username, br.borrowDate) AS borrow_count
+                    
                 FROM borrow AS br
                 JOIN books AS b ON br.bookID = b.bookID
+                
                 JOIN book_categories AS bc ON b.bookID = bc.bookID 
                 JOIN categories AS c ON bc.categoryID = c.categoryID
+                
                 WHERE br.borrowDate >= DATE_SUB(NOW(), INTERVAL 3 MONTH)
                   AND bc.categoryID = ? 
+                  
                 GROUP BY b.bookID, b.bookname, b.author
                 ORDER BY borrow_count DESC
-                LIMIT 10; -- 상위10개만 표시
+                LIMIT 10;
             `;
             const [results] = await db.query(categoryPopularSql, [selectedCategoryId]);
             popularBooksByCategoryList = results;
