@@ -25,7 +25,7 @@ const postLogin = async (req, res, next) => {
         const user = rows[0];
         if(user){
 
-            // 추가2 선호작가찾기
+            // 추가기능(2) 선호작가찾기 - 로그인때마다
             let favoriteAuthor = null; // 기본값 null
             const favoriteAuthorSql = `
                 SELECT b.author, COUNT(b.author) AS borrow_count
