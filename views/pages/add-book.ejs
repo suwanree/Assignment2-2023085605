@@ -23,7 +23,7 @@
                         <select id="authors-select" name="authors" class="form-label" required>
                             <option value="">Select or add an author</option>
                             <% authors.forEach(author => { %>
-                                <option value="id:<%= author.id %>"><%= author.name %></option>
+                                <option value="<%= author.name %>"><%= author.name %></option>
                             <% }); %>
                         </select>
                     </div>
@@ -31,7 +31,7 @@
                         <label for="categories-select" class="form-label">Categories</label>
                         <select multiple id="categories-select" name="categories">
                             <% categories.forEach(category => { %>
-                                <option value="id:<%= category.id %>"><%= category.name %></option>
+                                <option value="<%= category.name %>"><%= category.name %></option> 
                             <% }); %>
                         </select>
                     </div>

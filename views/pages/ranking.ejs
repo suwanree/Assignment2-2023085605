@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <%- include('../components/header') %>
+        
+        <main>
+            <div class="card">
+                <h2 class="mb-3">User Ranking</h2>
+                
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>순위</th>
+                            <th>티어</th>
+                            <th>사용자 ID</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(user => { %>
+                            <tr>
+                                <td><strong><%= user.rank %></strong></td>
+                                
+                                <td>
+                                    <%= user.tier.name %>
+                                </td>
+                                
+                                <td><%= user.username %></td>
+                                <td><%= user.rating %> 점</td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

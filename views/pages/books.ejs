@@ -27,6 +27,9 @@
             background-color: #f8f9fa;
             width: 100%;
         }
+        .star-rating { 
+            color: #f8d64e;
+        } /*별점*/
     </style>
 </head>
 <body>
@@ -41,6 +44,7 @@
                             <option value="title" <%= typeof searchBy !== 'undefined' && searchBy === 'title' ? 'selected' : '' %>>Title</option>
                             <option value="author" <%= typeof searchBy !== 'undefined' && searchBy === 'author' ? 'selected' : '' %>>Author</option>
                             <option value="category" <%= typeof searchBy !== 'undefined' && searchBy === 'category' ? 'selected' : '' %>>Category</option>
+                            <option value="star" <%= typeof searchBy !== 'undefined' && searchBy === 'star' ? 'selected' : '' %>>Star Rating</option>
                         </select>
                         <input type="text" name="query" placeholder="Search..." value="<%= typeof query !== 'undefined' ? query : '' %>" class="form-control">
                         <button type="submit" class="btn btn-primary">Search</button>
@@ -55,6 +59,7 @@
                             <th><a href="/books?sortBy=title&sortOrder=<%= sortBy === 'title' && sortOrder === 'asc' ? 'desc' : 'asc' %>&query=<%= query %>&searchBy=<%= searchBy %>">Title <%= sortBy === 'title' ? (sortOrder === 'asc' ? '▼' : '▲') : '' %></a></th>
                             <th><a href="/books?sortBy=author&sortOrder=<%= sortBy === 'author' && sortOrder === 'asc' ? 'desc' : 'asc' %>&query=<%= query %>&searchBy=<%= searchBy %>">Author <%= sortBy === 'author' ? (sortOrder === 'asc' ? '▼' : '▲') : '' %></a></th>
                             <th><a href="/books?sortBy=categories&sortOrder=<%= sortBy === 'categories' && sortOrder === 'asc' ? 'desc' : 'asc' %>&query=<%= query %>&searchBy=<%= searchBy %>">Categories <%= sortBy === 'categories' ? (sortOrder === 'asc' ? '▼' : '▲') : '' %></a></th>
+                            <th><a href="/books?sortBy=star&sortOrder=<%= sortBy === 'star' && sortOrder === 'asc' ? 'desc' : 'asc' %>&query=<%= query %>&searchBy=<%= searchBy %>">Star <%= sortBy === 'star' ? (sortOrder === 'asc' ? '▼' : '▲') : '' %></a></th> 
                             <th>Total</th>
                             <th>Available</th>
                             <th>Actions</th>
@@ -66,14 +71,15 @@
                                 <td><%= book.title %></td>
                                 <td><%= book.author %></td>
                                 <td><%= book.categories %></td>
+                                <td class="star-rating"><%= book.star ? book.star.toFixed(1) : '0.0' %></td> 
                                 <td><%= book.total_quantity %></td>
                                 <td><%= book.available_quantity %></td>
                                 <td>
-                                    <button class="btn btn-normal btn-sm toggle-instances" data-book-id="<%= book.id %>" data-loaded="false">Show Instances</button>
+                                    <button class="btn btn-normal btn-sm toggle-instances" data-book-id="<%= book.bookID %>" data-loaded="false">Show Instances</button>
                                 </td>
                             </tr>
-                            <tr class="book-instances-row" id="instances-for-<%= book.id %>" style="display: none;">
-                                <td colspan="6" class="p-0">
+                            <tr class="book-instances-row" id="instances-for-<%= book.bookID %>" style="display: none;">
+                                <td colspan="7" class="p-0"> 
                                     <div class="instances-container"></div>
                                 </td>
                             </tr>
@@ -83,6 +89,7 @@
             </div>
         </main>
     </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const tableBody = document.querySelector('.table tbody');
@@ -106,19 +113,21 @@
                 button.textContent = 'Loading...';
                 button.disabled = true;
 
-                const currentUserId = '<%= locals.session ? session.userId : null %>';
-                if (!currentUserId) {
-                    instancesContainer.innerHTML = '<div class="p-3 text-danger">You can see the instances only after you log in.</div>';
+                const currentUserId = '<%= locals.session ? session.userId : "" %>';
+                if (!currentUserId || currentUserId === 'null') {
+                    instancesContainer.innerHTML = '<div class="p-3 text-danger">You must be logged in to view instances.</div>';
                 } else if (!isLoaded) {
                     try {
                         const response = await fetch(`/api/books/${bookId}/instances`);
-                        if (!response.ok) throw new Error('Failed to fetch instances');
+                        if (!response.ok) {
+                            throw new Error(`Failed to fetch instances (${response.status})`);
+                        }
                         const instances = await response.json();
 
-                        instancesContainer.innerHTML = createInstancesTable(instances, bookId);
+                        instancesContainer.innerHTML = createInstancesTable(instances);
                         button.dataset.loaded = 'true';
                     } catch (error) {
-                        console.error(error);
+                        console.error('Error fetching or creating instances table:', error);
                         instancesContainer.innerHTML = '<div class="p-3 text-danger">Error loading instances.</div>';
                     }
                 }
@@ -128,19 +137,21 @@
                 button.disabled = false;
             });
 
-            function createInstancesTable(instances, bookId) {
-                if (instances.length === 0) {
-                    return '<div class="p-3 text-muted">No instances found for this book.</div>';
+            function createInstancesTable(instances) {
+                if (!instances || instances.length === 0) {
+                    return '<div class="p-3 text-muted">No instances available for this book.</div>';
                 }
 
                 const isAdmin = '<%= locals.session && session.role === "admin" %>' === 'true';
-                const currentUserId = '<%= locals.session ? session.userId : null %>';
+                const currentUserId = '<%= locals.session ? session.userId : "" %>';
 
                 let tableHtml = `
                     <table class="table table-bordered table-sm mb-0 instance-table">
                         <thead class="thead-light">
                             <tr>
                                 <th>Instance ID</th>
+                                <th>Location</th>
+                                <th>Status</th>
                                 <th>Borrowed By</th>
                                 <th>Borrowed Date</th>
                                 <th>Actions</th>
@@ -151,10 +162,13 @@
 
                 instances.forEach(inst => {
                     const borrowedBy = inst.borrowed_by || '-';
-                    const borrowDate = inst.borrow_date || '-';
+                    const borrowDate = inst.borrow_date ? new Date(inst.borrow_date).toLocaleDateString() : '-';
+
                     tableHtml += `
                         <tr>
                             <td>${inst.id}</td>
+                            <td>${inst.bookLocation || '-'}</td>
+                            <td><span class="badge bg-${inst.status === 'available' ? 'success' : (inst.status === 'borrowed' ? 'warning' : 'secondary')}">${inst.status}</span></td>
                             <td>${borrowedBy}</td>
                             <td>${borrowDate}</td>
                             <td>
@@ -163,31 +177,34 @@
 
                     if (inst.status === 'available') {
                         tableHtml += `
-                            <form action="/books/instances/${inst.id}/borrow" method="POST" style="display:inline;">
+                            <form action="/books/instance/borrow" method="POST" style="display:inline;">
+                                <input type="hidden" name="bookID" value="${inst.bookID}">
+                                <input type="hidden" name="bookLocation" value="${inst.bookLocation}">
+                                <input type="hidden" name="bookNum" value="${inst.id}"> 
                                 <button type="submit" class="btn btn-primary btn-sm action-btn">Borrow</button>
                             </form>
                         `;
-                    } else if (inst.borrowing_id) {
-                        if (inst.borrowed_by_id == currentUserId) {
-                            tableHtml += `
-                                <form action="/borrowings/${inst.borrowing_id}/return" method="POST" style="display:inline;">
-                                    <button type="submit" class="btn btn-secondary btn-sm action-btn">Return</button>
-                                </form>
-                            `;
-                        } else {
-                            tableHtml += `
-                                <form style="display:inline;">
-                                    <button type="submit" class="btn btn-primary btn-sm action-btn" disabled>Borrowed</button>
-                                </form>
-                            `;
-                        }
+                    } else if (inst.status === 'borrowed' && inst.borrowed_by_id == currentUserId) {
+                        tableHtml += `
+                            <form action="/borrowings/return" method="POST" style="display:inline;">
+                                <input type="hidden" name="bookID" value="${inst.bookID}">
+                                <input type="hidden" name="bookLocation" value="${inst.bookLocation}">
+                                <input type="hidden" name="bookNum" value="${inst.id}"> 
+                                <button type="submit" class="btn btn-secondary btn-sm action-btn">Return</button>
+                            </form>
+                        `;
+                    } else if (inst.status === 'borrowed') {
+                         tableHtml += `
+                            <button type="button" class="btn btn-secondary btn-sm action-btn" disabled>Borrowed</button>
+                        `;
                     }
 
                     if (isAdmin) {
-                        // Note: Deleting a single instance might be a new feature to implement.
-                        // This is a placeholder for that functionality.
                         tableHtml += `
-                            <form action="/books/instances/${inst.id}/delete" method="POST" style="display:inline;">
+                            <form action="/books/instance/delete" method="POST" style="display:inline;">
+                                <input type="hidden" name="bookID" value="${inst.bookID}">
+                                <input type="hidden" name="bookLocation" value="${inst.bookLocation}">
+                                <input type="hidden" name="bookNum" value="${inst.id}"> 
                                 <button type="submit" class="btn btn-danger btn-sm action-btn">Delete</button>
                             </form>
                         `;
@@ -205,4 +222,5 @@
             }
         });
     </script>
-</body></html>
+</body>
+</html>

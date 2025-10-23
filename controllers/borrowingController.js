@@ -1,32 +1,49 @@
 const db = require('../config/db');
 
 const getBorrowingsPage = async (req, res, next) => {
+    
+    //사용자 아이디 가져오기(현재로그인한 세션에대해서)
     const userId = req.session.userId;
 
+    // 로그안안했으면 로그인페이지로
     if (!userId) {
         return res.redirect('/login');
     }
 
-    const dummyBorrowings = [ // 이 변수는 더미데이터입니다. 구현을 다하면 제거해주세요.
-        {
-            id: 1, book_instance_id: 13, book_title: 'The Hobbit', book_author: 'J.R.R Tolkien', borrow_date: '2023.10.01', return_date: '2023.10.15', status: 'returned'
-        },
-        {
-            id: 2, book_instance_id: 11, book_title: 'The Lord of the Rings', book_author: 'J.R.R Tolkien', borrow_date: '2023.10.05', return_date: null, status: 'borrowed'
-        },
-        {
-            id: 3, book_instance_id: 10, book_title: 'The Silmarillion', book_author: 'J.R.R Tolkien', borrow_date: '2023.10.10', return_date: null, status: 'borrowed'
-        },
-    ];
     try {
         /*
-            TODO: 유저의 대여 기록을 모두 출력하는 페이지를 렌더링하는 코드를 작성하세요.
+            CLEAR: 유저의 대여 기록을 모두 출력하는 페이지를 렌더링하는 코드를 작성하세요.
         */
+
+
+        //책이름,작가, 등등정보를 가져오기위해 books랑 조인
+        const sql = `
+            SELECT 
+                b.bookname AS book_title,    -- EJS: borrowing.book_title
+                b.author AS book_author,      -- EJS: borrowing.book_author
+                br.borrowDate,                -- EJS: borrowing.borrowDate
+                br.returnDate,                -- EJS: borrowing.returnDate
+                br.bookID,                    -- EJS: Return 폼 hidden input
+                br.bookLocation,              -- EJS: Return 폼 hidden input
+                br.bookNum,                   -- EJS: Return 폼 hidden input
+                br.bookNum AS book_instance_id -- EJS: borrowing.book_instance_id (# ID 표시용)
+            FROM 
+                borrow AS br
+            JOIN 
+                books AS b ON br.bookID = b.bookID
+            WHERE 
+                br.username = ?
+            ORDER BY 
+                br.borrowDate DESC; -- 최근 대출 순으로 정렬
+        `;
+
+        const [borrowings] = await db.query(sql, [userId]);
         res.render('pages/borrowings', {
             title: 'My Borrowing History',
-            borrowings: dummyBorrowings // 대여 기록 리스트가 전달되어야 합니다.
+            borrowings: borrowings
         });
     } catch (err) {
+
         next(err);
     }
 };

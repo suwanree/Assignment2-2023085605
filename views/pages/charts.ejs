@@ -11,6 +11,45 @@
         <%- include('../components/header') %>
         <main>
             <div class="card mb-3">
+                <h2 class="mb-3">
+                    선호 작가 추천
+                    <% if (locals.authorRecs && authorRecs.length > 0) { %>
+                        <span style="font-size: 1.2rem; font-weight: normal; margin-left: 10px;">| <%= authorRecs[0].author %> 작가</span>
+                    <% } %>
+                </h2>
+
+                <% if (locals.authorRecs && authorRecs.length > 0) { %>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Star Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% authorRecs.forEach(book => { %>
+                                <tr>
+                                    <td><%= book.bookname %></td>
+                                    <td><%= book.author %></td>
+                                    <td style="color: gold;"><%= book.star.toFixed(1) %> ⭐</td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                
+                <% } else if (locals.user) { %>
+                    <p class="text-muted" style="padding: 1rem 0.5rem;">
+                        아직 대여 기록이 부족하거나 선호 작가의 다른 추천 도서가 없습니다.
+                    </p>
+
+                <% } else { %>
+                    <p class="text-muted" style="padding: 1rem 0.5rem;">
+                        <a href="/login">로그인</a>하고 맞춤 도서를 추천받으세요.
+                    </p>
+                <% } %>
+            </div>
+            <div class="card mb-3">
                 <h2 class="mb-3">Overall Popular Books (Last 3 Months)</h2>
                 <table class="table table-striped">
                     <thead>
@@ -39,13 +78,14 @@
                 <form action="/charts" method="GET" class="d-flex gap-2 mb-3">
                     <label for="categorySelect" class="form-label">Select Category:</label>
                     <select name="categoryId" id="categorySelect" class="form-select" onchange="this.form.submit()">
+
                         <% categories.forEach(category => { %>
-                            <option value="<%= category.id %>" <%= selectedCategoryId === category.id ? 'selected' : '' %>><%= category.name %></option>
+                            <option value="<%= category.id %>" <%= Number(selectedCategoryId) === category.id ? 'selected' : '' %>><%= category.name %></option>
                         <% }); %>
                     </select>
                 </form>
 
-                <% for (const categoryName in popularBooksByCategory) { %>
+                <% if (selectedCategoryId && popularBooksByCategory && popularBooksByCategory.length > 0) { %>
                     <table class="table table-striped">
                         <thead>
                             <tr>
@@ -56,7 +96,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <% popularBooksByCategory[categoryName].forEach(book => { %>
+                            <% popularBooksByCategory.forEach(book => { %>
                                 <tr>
                                     <td><%= book.title %></td>
                                     <td><%= book.author %></td>
@@ -66,6 +106,8 @@
                             <% }); %>
                         </tbody>
                     </table>
+                <% } else if (selectedCategoryId) { %>
+                     <p class="text-muted">No popular books found for the selected category in the last 3 months.</p>
                 <% } %>
             </div>
         </main>

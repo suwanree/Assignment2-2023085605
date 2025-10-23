@@ -6,6 +6,13 @@ const bookController = require('../controllers/bookController');
 const borrowingController = require('../controllers/borrowingController');
 const categoryController = require('../controllers/categoryController');
 const userController = require('../controllers/userController');
+
+// 추가기능 1
+const reviewController = require('../controllers/reviewController');
+
+// 추가기능 3
+const rankingController = require('../controllers/rankingController');
+
 const { isAuthenticated, isAdmin } = require('../middleware/authMiddleware');
 
 // Login Page (no need login)
@@ -29,11 +36,12 @@ router.get('/books', bookController.getBooksPage);
 // Book Management (need login as admin)
 router.get('/books/add', isAuthenticated, isAdmin, bookController.getAddBookPage);
 router.post('/books/add', isAuthenticated, isAdmin, bookController.postAddBook);
-router.post('/books/instances/:id/delete', isAuthenticated, isAdmin, bookController.postDeleteBookInstance);
+router.post('/books/instance/delete', isAuthenticated, isAdmin, bookController.postDeleteBookInstance);
+//여기수정함 ㅇㅇ
 
 // Borrow & Return (need login only)
-router.post('/books/instances/:id/borrow', isAuthenticated, bookController.postBorrowBook);
-router.post('/borrowings/:id/return', isAuthenticated, bookController.postReturnBook);
+router.post('/books/instance/borrow', isAuthenticated, bookController.postBorrowBook);
+router.post('/borrowings/return', isAuthenticated, bookController.postReturnBook);
 
 // API route to get book instances
 router.get('/api/books/:id/instances', isAuthenticated, bookController.getBookInstances);
@@ -51,5 +59,14 @@ router.post('/categories/:id/delete', isAuthenticated, isAdmin, categoryControll
 
 // Users Page (need login as admin)
 router.get('/users', isAuthenticated, isAdmin, userController.getUsersPage);
+
+// 리뷰 페이지
+router.get('/reviews/add/:bookId', isAuthenticated, reviewController.getAddReviewPage);
+router.post('/reviews/add/:bookId', isAuthenticated, reviewController.postAddReview);
+
+
+// 랭킹 페이지
+router.get('/ranking', rankingController.getRankingPage);
+
 
 module.exports = router;

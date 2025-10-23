@@ -26,16 +26,22 @@
                     <tbody>
                         <% borrowings.forEach(borrowing => { %>
                             <tr>
-                                <td>#<%= borrowing.book_instance_id %></td>
-                                <td><%= borrowing.book_title %></td>
-                                <td><%= borrowing.book_author %></td>
-                                <td><%= borrowing.borrow_date %></td>
-                                <td><%= borrowing.return_date || '-' %></td>
+                                <td>#<%= borrowing.bookID %>-<%= borrowing.bookNum %></td> 
+                                
+                                <td><%= borrowing.book_title || '-' %></td>
+                                <td><%= borrowing.book_author || '-' %></td>
+                                <td><%= borrowing.borrowDate ? new Date(borrowing.borrowDate).toLocaleDateString() : '-' %></td>
+                                <td><%= borrowing.returnDate ? new Date(borrowing.returnDate).toLocaleDateString() : '-' %></td>
                                 <td>
-                                    <% if (!borrowing.return_date) { %>
-                                        <form action="/borrowings/<%= borrowing.id %>/return" method="POST">
+                                    <% if (!borrowing.returnDate) { %> 
+                                        <form action="/borrowings/return" method="POST">
+                                            <input type="hidden" name="bookID" value="<%= borrowing.bookID %>">
+                                            <input type="hidden" name="bookLocation" value="<%= borrowing.bookLocation %>">
+                                            <input type="hidden" name="bookNum" value="<%= borrowing.bookNum %>"> 
                                             <button type="submit" class="btn btn-primary">Return</button>
                                         </form>
+                                    <% }else {%>
+                                        <a href="/reviews/add/<%= borrowing.bookID %>" class="btn btn-success">Review</a> 
                                     <% } %>
                                 </td>
                             </tr>
