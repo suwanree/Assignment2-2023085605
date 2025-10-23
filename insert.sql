@@ -10,15 +10,7 @@ VALUES
 ('book_hoarder', '123', TRUE, 'user', NULL, 0);
 
 INSERT INTO categories (categoryName) 
-VALUES
-('IT'),
-('과학'),
-('소설'),
-('역사'),
-('인문'),
-('경제'),
-('예술'),
-('자기계발');
+VALUES ('IT'), ('과학'), ('소설'), ('역사'), ('인문'), ('경제'), ('예술'), ('자기계발');
 
 INSERT INTO books (bookID, bookname, author, star) 
 VALUES
@@ -33,41 +25,37 @@ VALUES
 ('B009', '책9', '김작가', 0.0),
 ('B010', '책10', '박루틴', 0.0),
 ('B011', '책11', '정재승', 4.5),
-('B012', '책12', 'E.H.카', 0.0);
-
+('B012', '책12', 'E.H.카', 0.0),
+('B013', '책13 (윤성우)', '윤성우', 3.5),
+('B014', '책14 (윤성우)', '윤성우', 4.0),
+('B015', '책15 (윤성우)', '윤성우', 5.0),
+('B016', '책16 (윤성우)', '윤성우', 4.2),
+('B017', '책17 (윤성우)', '윤성우', 4.8);
 
 INSERT INTO book_categories (bookID, categoryID) 
 VALUES
-('B001', 1), ('B001', 2),
-('B002', 1),
-('B003', 2),
-('B004', 3),
-('B005', 5),
-('B006', 1),
-('B007', 1),
-('B008', 6),
-('B009', 7),
-('B010', 8),
-('B011', 2),
-('B012', 4);
+('B001', 1), ('B001', 2), ('B002', 1), ('B003', 2), ('B004', 3), ('B005', 5),
+('B006', 1), ('B007', 1), ('B008', 6), ('B009', 7), ('B010', 8), ('B011', 2), ('B012', 4),
+('B013', 1),
+('B014', 1),
+('B015', 2),
+('B016', 1), ('B016', 5),
+('B017', 5);
 
 INSERT INTO libraryBooks (bookID, bookLocation, bookNum, borrowable) 
 VALUES
-('B001', 'IT/컴퓨터', 1, TRUE),
-('B001', 'IT/컴퓨터', 2, TRUE),
-('B002', 'IT/컴퓨터', 1, TRUE),
-('B002', 'IT/컴퓨터', 2, TRUE),
-('B003', '과학', 1, TRUE),
-('B004', '소설', 1, TRUE),
-('B005', '인문', 1, TRUE),
-('B005', '인문', 2, TRUE),
-('B006', 'IT/컴퓨터', 1, TRUE),
-('B007', 'IT/컴퓨터', 1, TRUE),
-('B008', '경제', 1, TRUE),
-('B009', '예술', 1, TRUE),
-('B010', '자기계발', 1, TRUE),
-('B011', '과학', 1, TRUE),
-('B012', '역사', 1, TRUE);
+('B001', 'IT/컴퓨터', 1, TRUE), ('B001', 'IT/컴퓨터', 2, TRUE),
+('B002', 'IT/컴퓨터', 1, TRUE), ('B002', 'IT/컴퓨터', 2, TRUE),
+('B003', '과학', 1, TRUE), ('B004', '소설', 1, TRUE),
+('B005', '인문', 1, TRUE), ('B005', '인문', 2, TRUE),
+('B006', 'IT/컴퓨터', 1, TRUE), ('B007', 'IT/컴퓨터', 1, TRUE),
+('B008', '경제', 1, TRUE), ('B009', '예술', 1, TRUE),
+('B010', '자기계발', 1, TRUE), ('B011', '과학', 1, TRUE), ('B012', '역사', 1, TRUE),
+('B013', 'IT/컴퓨터', 1, TRUE),
+('B014', 'IT/컴퓨터', 1, TRUE),
+('B015', '과학', 1, TRUE),
+('B016', 'IT/컴퓨터', 1, TRUE),
+('B017', '인문', 1, TRUE);
 
 INSERT INTO review (username, bookID, star, detail) 
 VALUES
@@ -79,7 +67,11 @@ VALUES
 ('booklover', 'B005', 4.5, '내용이 알차네요'),
 ('yoon_fan', 'B006', 5.0, '최고의책'),
 ('bookcool', 'B008', 3.0, '뻔합니다'),
-('world', 'B011', 4.5, '재밌어요');
+('world', 'B011', 4.5, '재밌어요'),
+('booklover', 'B002', 4.0, '실버 테스트용 리뷰'),
+('yoon_fan', 'B001', 5.0, '골드 테스트 리뷰1'),
+('yoon_fan', 'B002', 5.0, '골드 테스트 리뷰2'),
+('yoon_fan', 'B003', 5.0, '골드 테스트 리뷰3');
 
 INSERT INTO borrow (username, bookID, bookLocation, bookNum, borrowDate, returnDate) 
 VALUES 
@@ -98,7 +90,15 @@ VALUES
 ('hello', 'B001', 'IT/컴퓨터', 1, '2025-08-10 10:00:00', '2025-08-15 11:00:00'),
 ('hello', 'B002', 'IT/컴퓨터', 1, '2025-09-10 10:00:00', '2025-09-18 11:00:00'),
 ('world', 'B011', '과학', 1, '2025-09-20 10:00:00', '2025-09-25 11:00:00'),
-('world', 'B002', 'IT/컴퓨터', 2, '2025-10-11 10:00:00', '2025-10-15 11:00:00');
+('world', 'B002', 'IT/컴퓨터', 2, '2025-10-11 10:00:00', '2025-10-15 11:00:00'),
+('booklover', 'B003', '과학', 1, '2025-01-01 10:00:00', '2025-01-05 11:00:00'),
+('booklover', 'B004', '소설', 1, '2025-01-06 10:00:00', '2025-01-10 11:00:00'),
+('yoon_fan', 'B002', 'IT/컴퓨터', 1, '2025-03-01 10:00:00', '2025-03-05 11:00:00'),
+('yoon_fan', 'B003', '과학', 1, '2025-03-06 10:00:00', '2025-03-10 11:00:00'),
+('yoon_fan', 'B004', '소설', 1, '2025-03-11 10:00:00', '2025-03-15 11:00:00'),
+('yoon_fan', 'B008', '경제', 1, '2025-03-16 10:00:00', '2025-03-20 11:00:00'),
+('yoon_fan', 'B011', '과학', 1, '2025-04-01 10:00:00', '2025-04-05 11:00:00'),
+('yoon_fan', 'B012', '역사', 1, '2025-04-06 10:00:00', '2025-04-10 11:00:00');
 
 UPDATE libraryBooks SET borrowable = FALSE WHERE bookID = 'B007' AND bookNum = 1;
 UPDATE libraryBooks SET borrowable = FALSE WHERE bookID = 'B011' AND bookNum = 1;
@@ -106,8 +106,8 @@ UPDATE libraryBooks SET borrowable = FALSE WHERE bookID = 'B009' AND bookNum = 1
 UPDATE libraryBooks SET borrowable = FALSE WHERE bookID = 'B010' AND bookNum = 1;
 UPDATE libraryBooks SET borrowable = FALSE WHERE bookID = 'B012' AND bookNum = 1;
 
-UPDATE users SET rating = 30 WHERE username = 'booklover';
-UPDATE users SET rating = 40, preferAuthor = '윤성우' WHERE username = 'yoon_fan';
+UPDATE users SET rating = 50 WHERE username = 'booklover'; 
+UPDATE users SET rating = 100, preferAuthor = '윤성우' WHERE username = 'yoon_fan';
 UPDATE users SET rating = 13 WHERE username = 'late_returner';
 UPDATE users SET rating = 15 WHERE username = 'book_hoarder';
 UPDATE users SET rating = 18 WHERE username = 'hello';
